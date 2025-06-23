@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
-ASAAS_API_KEY = 'SUA_API_KEY_AQUI'
+# Pega a chave da API do Asaas da variável de ambiente ou usa placeholder
+ASAAS_API_KEY = os.environ.get('ASAAS_API_KEY', 'SUA_API_KEY_AQUI')
 ASAAS_API_URL = 'https://www.asaas.com/api/v3'
 
 @app.route('/')
@@ -17,6 +19,9 @@ def cadastrar_vendedor():
     email = data.get('email')
     telefone = data.get('telefone')
     plano = data.get('plano')  # 'mensal' ou 'anual'
+
+    if not all([nome, email, telefone, plano]):
+        return jsonify({"erro": "Faltando dados obrigatórios"}), 400
 
     ciclo = 'MONTHLY' if plano == 'mensal' else 'ANNUALLY'
     valor = 45.00 if plano == 'mensal' else 240.00
@@ -42,7 +47,7 @@ def cadastrar_vendedor():
         "access_token": ASAAS_API_KEY
     }, json={
         "customer": customer_id,
-        "billingType": "UNDEFINED",  # Aceita PIX e cartão (cliente escolhe)
+        "billingType": "UNDEFINED",  # aceita PIX e cartão
         "cycle": ciclo,
         "value": valor,
         "description": f"Assinatura {plano.capitalize()} - Gadaiada"
@@ -60,13 +65,15 @@ def webhook():
         email_cliente = pagamento.get('customer', {}).get('email')
 
         if email_cliente:
-            # Aqui você pode ativar o vendedor via API ou banco
             print(f"Pagamento confirmado para: {email_cliente}")
             ativar_vendedor_no_webkul(email_cliente)
 
     return '', 200
 
 def ativar_vendedor_no_webkul(email):
-    # Aqui você deve conectar com a API ou admin do Webkul para ativar o vendedor
-    # Exemplo fictício:
+    # Aqui você integra com a API do Webkul para ativar o vendedor, por enquanto simulado
     print(f"Vendedor com e-mail {email} foi ativado no sistema (simulado).")
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
