@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Pega a chave da API do Asaas da variável de ambiente ou usa placeholder
-ASAAS_API_KEY = os.environ.get('ASAAS_API_KEY', 'SUA_API_KEY_AQUI')
+ASAAS_API_KEY = os.environ.get('ASAAS_API_KEY', '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmFmMGM3OWYyLWRkYWUtNDk1Yi05MGJmLWQ3NmM0MjNiM2Y1MTo6JGFhY2hfY2E3NWJhNTEtZjAxNS00OTYyLTk4YzQtYmFiNDE3ZTAwZWIz')
 ASAAS_API_URL = 'https://www.asaas.com/api/v3'
 
 @app.route('/')
