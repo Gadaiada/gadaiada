@@ -4,7 +4,6 @@ import os
 
 app = Flask(__name__)
 
-# Pega a chave da API do Asaas da variável de ambiente ou usa placeholder
 ASAAS_API_KEY = os.environ.get('ASAAS_API_KEY', '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmFmMGM3OWYyLWRkYWUtNDk1Yi05MGJmLWQ3NmM0MjNiM2Y1MTo6JGFhY2hfY2E3NWJhNTEtZjAxNS00OTYyLTk4YzQtYmFiNDE3ZTAwZWIz')
 ASAAS_API_URL = 'https://www.asaas.com/api/v3'
 
@@ -18,7 +17,7 @@ def cadastrar_vendedor():
     nome = data.get('nome')
     email = data.get('email')
     telefone = data.get('telefone')
-    plano = data.get('plano')  # 'mensal' ou 'anual'
+    plano = data.get('plano')
 
     if not all([nome, email, telefone, plano]):
         return jsonify({"erro": "Faltando dados obrigatórios"}), 400
@@ -26,7 +25,6 @@ def cadastrar_vendedor():
     ciclo = 'MONTHLY' if plano == 'mensal' else 'ANNUALLY'
     valor = 45.00 if plano == 'mensal' else 240.00
 
-    # Criar cliente no Asaas
     cliente_response = requests.post(f"{ASAAS_API_URL}/customers", headers={
         "Content-Type": "application/json",
         "access_token": ASAAS_API_KEY
@@ -41,13 +39,12 @@ def cadastrar_vendedor():
 
     customer_id = cliente_response['id']
 
-    # Criar assinatura (recorrente)
     assinatura_response = requests.post(f"{ASAAS_API_URL}/subscriptions", headers={
         "Content-Type": "application/json",
         "access_token": ASAAS_API_KEY
     }, json={
         "customer": customer_id,
-        "billingType": "UNDEFINED",  # aceita PIX e cartão
+        "billingType": "UNDEFINED",
         "cycle": ciclo,
         "value": valor,
         "description": f"Assinatura {plano.capitalize()} - Gadaiada"
@@ -71,9 +68,8 @@ def webhook():
     return '', 200
 
 def ativar_vendedor_no_webkul(email):
-    # Aqui você integra com a API do Webkul para ativar o vendedor, por enquanto simulado
     print(f"Vendedor com e-mail {email} foi ativado no sistema (simulado).")
 
+# Apenas para desenvolvimento local
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
